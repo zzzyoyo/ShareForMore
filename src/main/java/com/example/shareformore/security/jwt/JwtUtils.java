@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Component
 public class JwtUtils {
-    final private static HashMap<String, Object> header = new HashMap();
+    final private static HashMap<String, Object> header = new HashMap<>();
     private static String issuer;
     private static String secret;
     private static long timeLimit;
@@ -38,7 +38,7 @@ public class JwtUtils {
     }
 
     //根据用户生成令牌
-    public static String generateToken(String username) {
+    public String generateToken(String username) {
         long currentTime = System.currentTimeMillis();
         return Jwts.builder().
                 setHeader(header).

@@ -28,6 +28,7 @@ public class User implements UserDetails {
     Set<SpecialColumn> specialColumnSet;
     @OneToMany(mappedBy = "author")
     Set<Work> workSet;
+
     @JoinTable(name = "collection",joinColumns = @JoinColumn(name="userId"),inverseJoinColumns = @JoinColumn(name = "workId"))
     @ManyToMany
     Set<Work> collection;
@@ -57,6 +58,7 @@ public class User implements UserDetails {
         this.specialColumnSet = new HashSet<>();
         this.workSet = new HashSet<>();
         this.payment = new HashSet<>();
+        this.collection = new HashSet<>();
         this.authorities = new HashSet<>();
         this.authorities.add(authority);
     }
@@ -154,5 +156,13 @@ public class User implements UserDetails {
 
     public void setPayment(Set<Work> payment) {
         this.payment = payment;
+    }
+
+    public Set<Work> getCollection() {
+        return collection;
+    }
+
+    public void setCollection(Set<Work> collection) {
+        this.collection = collection;
     }
 }

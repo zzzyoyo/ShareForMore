@@ -14,33 +14,31 @@ import java.util.Map;
  */
 @ControllerAdvice//这个注解指这个类是处理其他controller抛出的异常
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
-    //当controller中抛出用户名不存在异常时会转到这个方法中处理
-    @ExceptionHandler(UsernameNotFoundException.class)
-    ResponseEntity<?> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        logger.debug("user not found error");
-        Map<String, String> body = new HashMap<>();
-        body.put("data", "error");
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    //当controller中抛出用户不存在异常时会转到这个方法中处理
+    @ExceptionHandler(UserNotFoundException.class)
+    ResponseEntity<?> handleUserNotFoundException(UserNotFoundException ex) {
+        return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    // 用户名密码不匹配
     @ExceptionHandler(BadCredentialsException.class)
     ResponseEntity<?> handleBadCredentialsException(BadCredentialsException ex) {
-        logger.debug("wrong password error");
-        Map<String, String> body = new HashMap<>();
-        body.put("data", "error");
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.FORBIDDEN);
     }
 
-    //用户名已被注册
-    @ExceptionHandler(UsernameHasBeenRegisteredException.class)
-    ResponseEntity<?> handlerUsernameHasBeenRegisteredException(UsernameHasBeenRegisteredException ex) {
-        logger.debug("username used error");
+    @ExceptionHandler({UsernameHasBeenRegisteredException.class, BalanceOverflowException.class})
+    ResponseEntity<?> handleBadRequestException(UsernameHasBeenRegisteredException ex) {
+        return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * 出错时按照前端的要求返回的body
+     * @param message
+     * @return body
+     */
+    private Map<String, String> getBody(String message){
         Map<String, String> body = new HashMap<>();
         body.put("data", "error");
-        body.put("message", ex.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        body.put("message", message);
+        return body;
     }
 }
