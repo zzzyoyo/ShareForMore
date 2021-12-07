@@ -18,9 +18,10 @@ public class Work {
     Timestamp createTime;
     Timestamp updateTime;
     String description;
+    String content;
 
     @Lob
-    byte[] content;
+    byte[] image;
 
     int price;
     @JoinColumn(name = "authorId")
@@ -46,18 +47,43 @@ public class Work {
     public Work() {
     }
 
-    public Work(User author, SpecialColumn specialColumn, String title, String description, byte[] content, int price, Set<Tag> tagSet) {
+    public Work(User author, SpecialColumn specialColumn, String title, String description, String content, byte[] image, int price, Set<Tag> tagSet) {
         this.author = author;
         this.specialColumn = specialColumn;
         this.title = title;
+        this.content = content;
         Timestamp timestamp = new Timestamp(new Date().getTime());
         this.createTime = timestamp;
         this.updateTime = timestamp;
         this.description = description;
-        this.content = content;
+        this.image = image;
         this.price = price;
         this.tagSet = tagSet;
         this.purchase = new HashSet<>();
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public SpecialColumn getSpecialColumn() {
+        return specialColumn;
+    }
+
+    public void setSpecialColumn(SpecialColumn specialColumn) {
+        this.specialColumn = specialColumn;
+    }
+
+    public Set<User> getLiked() {
+        return liked;
+    }
+
+    public void setLiked(Set<User> liked) {
+        this.liked = liked;
     }
 
     public Long getWorkId() {
@@ -100,12 +126,12 @@ public class Work {
         this.description = description;
     }
 
-    public byte[] getContent() {
-        return content;
+    public byte[] getImage() {
+        return image;
     }
 
-    public void setContent(byte[] content) {
-        this.content = content;
+    public void setImage(byte[] content) {
+        this.image = content;
     }
 
     public int getPrice() {

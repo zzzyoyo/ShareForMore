@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,18 +16,18 @@ import java.util.Map;
 @ControllerAdvice//这个注解指这个类是处理其他controller抛出的异常
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     //当controller中抛出用户不存在异常时会转到这个方法中处理
-    @ExceptionHandler(UserNotFoundException.class)
-    ResponseEntity<?> handleUserNotFoundException(UserNotFoundException ex) {
+    @ExceptionHandler({UserNotFoundException.class, ColumnNotFoundException.class, TagNotFoundException.class, WorkNotFoundException.class})
+    ResponseEntity<?> handleUserNotFoundException(RuntimeException ex) {
         return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    ResponseEntity<?> handleBadCredentialsException(BadCredentialsException ex) {
+    @ExceptionHandler({BadCredentialsException.class, IllegalUpdateException.class})
+    ResponseEntity<?> handleBadCredentialsException(RuntimeException ex) {
         return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler({UsernameHasBeenRegisteredException.class, BalanceOverflowException.class})
-    ResponseEntity<?> handleBadRequestException(UsernameHasBeenRegisteredException ex) {
+    @ExceptionHandler({UsernameHasBeenRegisteredException.class, BalanceOverflowException.class, EmptyWorkException.class, IOException.class})
+    ResponseEntity<?> handleBadRequestException(RuntimeException ex) {
         return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
