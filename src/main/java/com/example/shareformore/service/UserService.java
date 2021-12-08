@@ -65,7 +65,7 @@ public class UserService {
         return map;
     }
 
-    public Map<String, String> pay(long userId, int money){
+    public Map<String, String> pay(Long userId, int money){
         User user = userRepository.findByUserId(userId);
         if(user == null) {
             //用户不存在
@@ -85,7 +85,7 @@ public class UserService {
         return map;
     }
 
-    public Map<String, Object> info(long userId){
+    public Map<String, Object> info(Long userId){
         User user = userRepository.findByUserId(userId);
         if(user == null) {
             //用户不存在
@@ -97,7 +97,7 @@ public class UserService {
         return map;
     }
 
-    public Map<String, Object> changeIntro(long userId, String selfIntro){
+    public Map<String, Object> changeIntro(Long userId, String selfIntro){
         User user = userRepository.findByUserId(userId);
         if(user == null) {
             //用户不存在

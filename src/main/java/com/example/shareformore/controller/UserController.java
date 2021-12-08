@@ -33,19 +33,19 @@ public class UserController {
     }
 
     @GetMapping("/pay")
-    public ResponseEntity<?> pay(@RequestParam("user_id")long userId, @RequestParam("money")int money){
+    public ResponseEntity<?> pay(@RequestParam("user_id")Long userId, @RequestParam("money")int money){
         logger.debug("get a pay post");
         return ResponseEntity.ok(userService.pay(userId, money));
     }
 
     @GetMapping("/info")
-    public ResponseEntity<?> info(@RequestParam("user_id")long userId){
+    public ResponseEntity<?> info(@RequestParam("user_id")Long userId){
         logger.debug("get a info post");
         return ResponseEntity.ok(userService.info(userId));
     }
 
     @PostMapping("/changeIntro")
-    public ResponseEntity<?> changeIntro(@RequestParam("user_id")long userId, @RequestParam("self_introduction")String selfIntro) {
+    public ResponseEntity<?> changeIntro(@RequestParam("user_id")Long userId, @RequestParam("self_introduction")String selfIntro) {
         logger.debug("get a changeIntro post");
         return ResponseEntity.ok(userService.changeIntro(userId, selfIntro));
     }
