@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TagRepository extends CrudRepository<Tag, Long> {
     Tag findByTagId(Long id);
+    Tag findByTagName(String name);
 }

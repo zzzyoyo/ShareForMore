@@ -25,8 +25,8 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler({UsernameHasBeenRegisteredException.class, BalanceOverflowException.class})
-    ResponseEntity<?> handleBadRequestException(UsernameHasBeenRegisteredException ex) {
+    @ExceptionHandler({UsernameHasBeenRegisteredException.class, TagNameHasBeenUsedException.class, BalanceOverflowException.class})
+    ResponseEntity<?> handleBadRequestException(Exception ex) {
         return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
