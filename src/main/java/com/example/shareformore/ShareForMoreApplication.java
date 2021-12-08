@@ -19,10 +19,12 @@ public class ShareForMoreApplication {
     public CommandLineRunner dataLoader(UserRepository userRepository, ColumnRepository columnRepository) {
         return args -> {
             if (userRepository.findByName("Admin") == null) {
-                User admin = new User("Admin", "123456", null);
+                User admin = new User("Admin", "123456");
                 SpecialColumn column = new SpecialColumn(admin);
                 userRepository.save(admin);
                 columnRepository.save(column);
+            } else {
+                System.out.println(userRepository.findByName("Admin").getColumnSet().size());
             }
         };
     }

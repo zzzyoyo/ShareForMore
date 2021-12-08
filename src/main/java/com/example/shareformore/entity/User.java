@@ -24,7 +24,7 @@ public class User implements UserDetails {
     int balance;
     String self_introduction;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER)
     Set<SpecialColumn> specialColumnSet;
     @OneToMany(mappedBy = "author")
     Set<Work> workSet;
@@ -48,6 +48,13 @@ public class User implements UserDetails {
         this.name = name;
         this.password = password;
         this.balance = 0;
+        this.self_introduction = Initial_Introduction;
+        this.specialColumnSet = new HashSet<>();
+        this.workSet = new HashSet<>();
+        this.payment = new HashSet<>();
+        this.collection = new HashSet<>();
+        this.authorities = new HashSet<>();
+        this.specialColumnSet.add(new SpecialColumn(this));
     }
 
     public User(String name, String password, Authority authority) {
