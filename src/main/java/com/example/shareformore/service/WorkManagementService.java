@@ -21,10 +21,10 @@ import java.util.*;
 
 @Service
 public class WorkManagementService {
-    private UserRepository userRepository;
-    private WorkRepository workRepository;
-    private ColumnRepository columnRepository;
-    private TagRepository tagRepository;
+    private final UserRepository userRepository;
+    private final WorkRepository workRepository;
+    private final ColumnRepository columnRepository;
+    private final TagRepository tagRepository;
 
     final private Set<String> allowSuffix = new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "gif"));
     private static String ACCESS_URL;
@@ -123,5 +123,115 @@ public class WorkManagementService {
             tagSet.add(temp_tag);
         }
         return tagSet;
+    }
+
+    public Map<String, Object> buyWork(Long userId, Long workId) {
+        User user = userRepository.findByUserId(userId);
+        Work work = workRepository.findByWorkId(workId);
+        if(user == null) {
+            logger.debug("user not found error");
+            throw new UserNotFoundException("id '" + userId + "'");
+        }
+        if (work == null) {
+            logger.debug("work not found error");
+            throw new WorkNotFoundException(workId);
+        }
+
+        int price = work.getPrice();
+        if (price > user.getBalance()) {
+            // 余额不够支付
+            logger.debug("balance not enough error");
+            throw new BalanceNotEnoughException(user.getUsername(), price);
+        }
+
+        user.setBalance(user.getBalance() - price);
+        user.getPayment().add(work);
+        userRepository.save(user);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("data", "success");
+        return map;
+    }
+
+    public Map<String, Object> listWork(String title, String tag, String name, Long columnId) {
+        List<Work> works;
+        if (title != null && !title.isEmpty()) {
+            // 根据标题查找
+            works = workRepository.findByTitle(title);
+        } else if (tag != null && !tag.isEmpty()) {
+            // 根据标签查找
+            Tag tagEntity = tagRepository.findByTagName(tag);
+            if (tagEntity == null) {
+                logger.debug("tag not found error");
+                throw new TagNotFoundException(tag);
+            }
+
+            works = new ArrayList<>(tagEntity.getWorkSet());
+        } else if (name != null && !name.isEmpty()) {
+            // 根据作者查找
+            User user = userRepository.findByName(name);
+            if (user == null) {
+                logger.debug("user not found error");
+                throw new UserNotFoundException(name);
+            }
+
+            works = new ArrayList<>(user.getWorkSet());
+        } else if (columnId != null) {
+            // 根据专栏查找
+            SpecialColumn column = columnRepository.findByColumnId(columnId);
+            if (column == null) {
+                logger.debug("column not found error");
+                throw new ColumnNotFoundException(columnId);
+            }
+
+            works = new ArrayList<>(column.getWorkSet());
+        } else {
+            // 返回全部作品
+            works = new ArrayList<>();
+            workRepository.findAll().forEach(works::add);
+        }
+
+        // 按照发布最新的在前的顺序排序
+        works.sort(Comparator.comparing(Work::getCreateTime).reversed());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("list", works);
+        return map;
+    }
+
+    public Map<String, Object> showWorkDetail(Long userId, Long workId) {
+        User user = userRepository.findByUserId(userId);
+        Work work = workRepository.findByWorkId(workId);
+        if(user == null) {
+            logger.debug("user not found error");
+            throw new UserNotFoundException("id '" + userId + "'");
+        }
+        if (work == null) {
+            logger.debug("work not found error");
+            throw new WorkNotFoundException(workId);
+        }
+
+        boolean isAvailable = work.getPurchase().contains(user) || work.getAuthor().equals(user);
+
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("isAvailable", isAvailable); // 有无权限
+        map.put("data", (isAvailable) ? work.getAuthor().getName() : "forbidden");
+        map.put("obj", work);
+        return map;
+    }
+
+    public Map<String, Object> showWorkTags(Long workId) {
+        Work work = workRepository.findByWorkId(workId);
+        if (work == null) {
+            logger.debug("work not found error");
+            throw new WorkNotFoundException(workId);
+        }
+
+        List<Tag> tags = new ArrayList<>(work.getTagSet());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("list", tags);
+        return map;
     }
 }

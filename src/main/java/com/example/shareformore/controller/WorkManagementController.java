@@ -5,6 +5,7 @@ import com.example.shareformore.service.WorkManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +16,7 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/work")
@@ -53,5 +55,35 @@ public class WorkManagementController {
                               @Min(value = 1, message = "价格必须为正整数") @RequestParam int price) throws IOException {
         logger.debug("get an update post from " + JwtUtils.getUsername(token));
         return ResponseEntity.ok(workManagementService.updateWork(JwtUtils.getUsername(token), work_id, column_id, tag_list, title, description,content, price, image));
+    }
+
+    @GetMapping("/buy")
+    public ResponseEntity<?> buyWork(@RequestParam("user_id")Long userId,
+                                     @RequestParam("work_id") Long workId) {
+        return ResponseEntity.ok(workManagementService.buyWork(userId, workId));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> listWork(@RequestParam String title,
+                                      @RequestParam String tag,
+                                      @RequestParam String name,
+                                      @RequestParam("column_id") Long columnId) {
+        return ResponseEntity.ok(workManagementService.listWork(title, tag, name, columnId));
+    }
+
+    @GetMapping("/detail")
+    public ResponseEntity<?> showWorkDetail(@RequestParam("user_id")Long userId, @RequestParam("work_id") Long workId) {
+        Map<String, Object> retMap = workManagementService.showWorkDetail(userId, workId);
+        boolean isAvailable = (boolean) retMap.remove("isAvailable");
+        if (isAvailable) {
+            return ResponseEntity.ok(retMap);
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(retMap);
+        }
+    }
+
+    @GetMapping("/tags")
+    public ResponseEntity<?> showWorkTags(@RequestParam("work_id") Long workId) {
+        return ResponseEntity.ok(workManagementService.showWorkTags(workId));
     }
 }

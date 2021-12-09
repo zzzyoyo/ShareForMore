@@ -6,4 +6,8 @@ public class TagNotFoundException extends RuntimeException {
     public TagNotFoundException(Long tag_id) {
         super("Tag with id " + tag_id + " doesn't exist");
     }
+
+    public TagNotFoundException(String tag_name) {
+        super("Tag with name " + tag_name + " doesn't exist");
+    }
 }

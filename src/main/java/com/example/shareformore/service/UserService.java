@@ -10,6 +10,7 @@ import com.example.shareformore.security.jwt.JwtConfig;
 import com.example.shareformore.security.jwt.JwtUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -17,9 +18,14 @@ import java.util.Map;
 
 @Service
 public class UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     /**
      * 所有的exception都交给ControllerAdvisor来处理
