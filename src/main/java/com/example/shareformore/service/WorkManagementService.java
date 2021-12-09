@@ -57,7 +57,7 @@ public class WorkManagementService {
             throw new EmptyWorkException();
         }
 
-        if (column == null) {
+        if (column == null && column_id >= 0) {
             logger.debug("column not found error");
             throw new ColumnNotFoundException(column_id);
         }
@@ -86,7 +86,7 @@ public class WorkManagementService {
             throw new WorkNotFoundException(work_id);
         }
 
-        if (column == null) {
+        if (column == null && column_id >= 0) {
             logger.debug("column not found error");
             throw new ColumnNotFoundException(column_id);
         }
@@ -109,7 +109,25 @@ public class WorkManagementService {
 
         Map<String, String> map = new HashMap<>();
         map.put("data", "success");
-        return null;
+        return map;
+    }
+
+    public Map payWork(String username, Long work_id) {
+        User user = userRepository.findByName(username);
+        Work work = workRepository.findByWorkId(work_id);
+        if (work == null) {
+            logger.debug("work not found error");
+            throw new WorkNotFoundException(work_id);
+        }
+        int credit = user.getBalance();
+        if (credit < work.getPrice()) {
+            throw new InsufficientBalanceException(work.getPrice());
+        }
+        user.payWork(work);
+        userRepository.save(user);
+        Map<String, String> map = new HashMap<>();
+        map.put("data", "success");
+        return map;
     }
 
     private Set<Tag> getTagSet(List<Long> tag_list) {
