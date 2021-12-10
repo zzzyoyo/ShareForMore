@@ -70,6 +70,11 @@ public class User implements UserDetails {
         this.authorities.add(authority);
     }
 
+    public void payWork(Work work) {
+        this.balance = this.balance - work.getPrice();
+        this.payment.add(work);
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;

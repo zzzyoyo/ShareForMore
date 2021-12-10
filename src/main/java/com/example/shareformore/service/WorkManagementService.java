@@ -57,7 +57,7 @@ public class WorkManagementService {
             throw new EmptyWorkException();
         }
 
-        if (column == null) {
+        if (column == null && column_id >= 0) {
             logger.debug("column not found error");
             throw new ColumnNotFoundException(column_id);
         }
@@ -86,7 +86,7 @@ public class WorkManagementService {
             throw new WorkNotFoundException(work_id);
         }
 
-        if (column == null) {
+        if (column == null && column_id >= 0) {
             logger.debug("column not found error");
             throw new ColumnNotFoundException(column_id);
         }
@@ -109,7 +109,25 @@ public class WorkManagementService {
 
         Map<String, String> map = new HashMap<>();
         map.put("data", "success");
-        return null;
+        return map;
+    }
+
+    public Map payWork(String username, Long work_id) {
+        User user = userRepository.findByName(username);
+        Work work = workRepository.findByWorkId(work_id);
+        if (work == null) {
+            logger.debug("work not found error");
+            throw new WorkNotFoundException(work_id);
+        }
+        int credit = user.getBalance();
+        if (credit < work.getPrice()) {
+            throw new InsufficientBalanceException(work.getPrice());
+        }
+        user.payWork(work);
+        userRepository.save(user);
+        Map<String, String> map = new HashMap<>();
+        map.put("data", "success");
+        return map;
     }
 
     private Set<Tag> getTagSet(List<Long> tag_list) {
@@ -123,34 +141,6 @@ public class WorkManagementService {
             tagSet.add(temp_tag);
         }
         return tagSet;
-    }
-
-    public Map<String, Object> buyWork(Long userId, Long workId) {
-        User user = userRepository.findByUserId(userId);
-        Work work = workRepository.findByWorkId(workId);
-        if(user == null) {
-            logger.debug("user not found error");
-            throw new UserNotFoundException("id '" + userId + "'");
-        }
-        if (work == null) {
-            logger.debug("work not found error");
-            throw new WorkNotFoundException(workId);
-        }
-
-        int price = work.getPrice();
-        if (price > user.getBalance()) {
-            // 余额不够支付
-            logger.debug("balance not enough error");
-            throw new BalanceNotEnoughException(user.getUsername(), price);
-        }
-
-        user.setBalance(user.getBalance() - price);
-        user.getPayment().add(work);
-        userRepository.save(user);
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("data", "success");
-        return map;
     }
 
     public Map<String, Object> listWork(String title, String tag, String name, Long columnId) {
