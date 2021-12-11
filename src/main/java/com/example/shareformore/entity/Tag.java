@@ -1,5 +1,7 @@
 package com.example.shareformore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.persistence.Column;
 import java.util.HashSet;
@@ -16,6 +18,7 @@ public class Tag {
     @Column(unique = true)
     private String tagName;
 
+    @JsonIgnore
     @JoinTable(name = "work_tag",joinColumns = @JoinColumn(name="tagId"),inverseJoinColumns = @JoinColumn(name = "workId"))
     @ManyToMany
     Set<Work> workSet;

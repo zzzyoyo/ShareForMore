@@ -33,11 +33,11 @@ public class WorkManagementController {
     @PostMapping("/new")
     public ResponseEntity<?> uploadWork(@RequestHeader String token,
                                         MultipartFile image,
-                                        @RequestParam Long column_id,
-                                        @RequestParam List<Long> tag_list,
+                                        @RequestParam(required = false) Long column_id,
+                                        @RequestParam(required = false) List<Long> tag_list,
                                         @NotBlank(message = "缺少标题") @RequestParam String title,
                                         @NotBlank(message = "缺少简介") @RequestParam String description,
-                                        @NotNull @RequestParam String content,
+                                        @RequestParam(required = false) String content,
                                         @Min(value = 1, message = "价格必须为正整数") @RequestParam int price) throws IOException {
         logger.debug("get an upload post from " + JwtUtils.getUsername(token));
         return ResponseEntity.ok(workManagementService.uploadWork(JwtUtils.getUsername(token), column_id, tag_list, title, description,content, price, image));
@@ -45,23 +45,23 @@ public class WorkManagementController {
 
     @PostMapping("/update")
     public ResponseEntity<?> updateWork(@RequestHeader String token,
-                              @NotNull(message = "缺少内容") MultipartFile image,
+                              MultipartFile image,
                               @Min(value = 1, message = "不合法的ID") @RequestParam Long work_id,
-                              @RequestParam Long column_id,
-                              @RequestParam List<Long> tag_list,
+                              @RequestParam(required = false) Long column_id,
+                              @RequestParam(required = false) List<Long> tag_list,
                               @NotBlank(message = "缺少标题") @RequestParam String title,
                               @NotBlank(message = "缺少简介") @RequestParam String description,
-                              @NotNull @RequestParam String content,
+                              @RequestParam(required = false) String content,
                               @Min(value = 1, message = "价格必须为正整数") @RequestParam int price) throws IOException {
         logger.debug("get an update post from " + JwtUtils.getUsername(token));
         return ResponseEntity.ok(workManagementService.updateWork(JwtUtils.getUsername(token), work_id, column_id, tag_list, title, description,content, price, image));
     }
 
     @GetMapping("/list")
-    public ResponseEntity<?> listWork(@RequestParam String title,
-                                      @RequestParam String tag,
-                                      @RequestParam String name,
-                                      @RequestParam("column_id") Long columnId) {
+    public ResponseEntity<?> listWork(@RequestParam(required = false) String title,
+                                      @RequestParam(required = false) String tag,
+                                      @RequestParam(required = false) String name,
+                                      @RequestParam(required = false, value = "column_id") Long columnId) {
         return ResponseEntity.ok(workManagementService.listWork(title, tag, name, columnId));
     }
 

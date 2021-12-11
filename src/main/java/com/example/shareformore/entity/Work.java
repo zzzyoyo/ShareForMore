@@ -1,5 +1,7 @@
 package com.example.shareformore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -24,22 +26,27 @@ public class Work {
     byte[] image;
 
     int price;
+    @JsonIgnore
     @JoinColumn(name = "authorId")
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     User author;
 
+    @JsonIgnore
     @JoinColumn(name = "columnId")
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     SpecialColumn specialColumn;
 
+    @JsonIgnore
     @JoinTable(name = "work_tag",joinColumns = @JoinColumn(name="workId"),inverseJoinColumns = @JoinColumn(name = "tagId"))
     @ManyToMany
     Set<Tag> tagSet;
 
+    @JsonIgnore
     @JoinTable(name = "collection",joinColumns = @JoinColumn(name="workId"),inverseJoinColumns = @JoinColumn(name = "userId"))
     @ManyToMany
     Set<User> liked;
 
+    @JsonIgnore
     @JoinTable(name = "payment",joinColumns = @JoinColumn(name="workId"),inverseJoinColumns = @JoinColumn(name = "userId"))
     @ManyToMany(cascade = {CascadeType.REMOVE, CascadeType.MERGE})
     Set<User> purchase;
@@ -150,6 +157,7 @@ public class Work {
         this.author = author;
     }
 
+    @JsonIgnore
     public SpecialColumn getColumn() {
         return specialColumn;
     }

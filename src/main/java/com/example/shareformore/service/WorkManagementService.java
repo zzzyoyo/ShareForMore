@@ -50,19 +50,26 @@ public class WorkManagementService {
 
     public Map uploadWork(String author, Long column_id, List<Long> tag_list, String title, String description, String content, int price, MultipartFile image) throws IOException {
         User user = userRepository.findByName(author);
-        SpecialColumn column = columnRepository.findByColumnId(column_id);
 
-        if (content.isBlank() && image == null) {
+        if ((content == null || content.isBlank()) && image == null) {
             logger.debug("empty work error");
             throw new EmptyWorkException();
         }
 
-        if (column == null && column_id >= 0) {
-            logger.debug("column not found error");
-            throw new ColumnNotFoundException(column_id);
+        SpecialColumn column = null;
+        if (column_id != null) {
+            column = columnRepository.findByColumnId(column_id);
+            if (column == null && column_id >= 0) {
+                logger.debug("column not found error");
+                throw new ColumnNotFoundException(column_id);
+            }
         }
 
-        Set<Tag> tagSet = getTagSet(tag_list);
+        Set<Tag> tagSet = null;
+        if (tag_list != null) {
+            tagSet = getTagSet(tag_list);
+        }
+
         Work work = new Work(user, column, title, description, content, image.getBytes(), price, tagSet);
         workRepository.save(work);
 
@@ -72,13 +79,12 @@ public class WorkManagementService {
     }
 
     public Map updateWork(String author, Long work_id, Long column_id, List<Long> tag_list, String title, String description, String content, int price, MultipartFile image) throws IOException {
-        if (content.isBlank() && image == null) {
+        if ((content == null || content.isBlank()) && image == null) {
             logger.debug("empty work error");
             throw new EmptyWorkException();
         }
 
         User user = userRepository.findByName(author);
-        SpecialColumn column = columnRepository.findByColumnId(column_id);
         Work work = workRepository.findByWorkId(work_id);
 
         if (work == null) {
@@ -86,9 +92,13 @@ public class WorkManagementService {
             throw new WorkNotFoundException(work_id);
         }
 
-        if (column == null && column_id >= 0) {
-            logger.debug("column not found error");
-            throw new ColumnNotFoundException(column_id);
+        SpecialColumn column = null;
+        if (column_id != null) {
+            column = columnRepository.findByColumnId(column_id);
+            if (column == null && column_id >= 0) {
+                logger.debug("column not found error");
+                throw new ColumnNotFoundException(column_id);
+            }
         }
 
         if (!user.equals(work.getAuthor())) {
@@ -96,7 +106,11 @@ public class WorkManagementService {
             throw new IllegalUpdateException(author, work_id);
         }
 
-        Set<Tag> tagSet = getTagSet(tag_list);
+
+        Set<Tag> tagSet = null;
+        if (tag_list != null) {
+            tagSet = getTagSet(tag_list);
+        }
         work.setColumn(column);
         work.setTitle(title);
         work.setDescription(description);
@@ -115,10 +129,27 @@ public class WorkManagementService {
     public Map payWork(String username, Long work_id) {
         User user = userRepository.findByName(username);
         Work work = workRepository.findByWorkId(work_id);
+        if (user == null) {
+            logger.debug("user not found error");
+            throw new UserNotFoundException("name '" + username + "'");
+        }
         if (work == null) {
             logger.debug("work not found error");
             throw new WorkNotFoundException(work_id);
         }
+
+        // 作者不能买自己的作品
+        if (work.getAuthor().equals(user)) {
+            logger.debug("author buy work error");
+            throw new AuthorBuyWorkException();
+        }
+
+        // 不能买已经买过的作品
+        if (work.getPurchase().contains(user)) {
+            logger.debug("work has been bought error");
+            throw new WorkHasBeenBoughtException();
+        }
+
         int credit = user.getBalance();
         if (credit < work.getPrice()) {
             throw new InsufficientBalanceException(work.getPrice());
@@ -178,6 +209,7 @@ public class WorkManagementService {
         } else {
             // 返回全部作品
             works = new ArrayList<>();
+            Iterable<Work> works1 = workRepository.findAll();
             workRepository.findAll().forEach(works::add);
         }
 

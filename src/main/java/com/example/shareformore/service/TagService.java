@@ -5,6 +5,7 @@ import com.example.shareformore.exception.TagNameHasBeenUsedException;
 import com.example.shareformore.repository.TagRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -14,7 +15,12 @@ import java.util.Map;
 
 @Service
 public class TagService {
-    private TagRepository tagRepository;
+    private final TagRepository tagRepository;
+
+    @Autowired
+    public TagService(TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
+    }
 
     Logger logger = LoggerFactory.getLogger(TagService.class);
 
@@ -34,6 +40,7 @@ public class TagService {
             throw new TagNameHasBeenUsedException(tagName);
         }
         tag = new Tag(tagName);
+        tagRepository.save(tag);
         map.put("data", "success");
         map.put("obj", tag);
         return map;

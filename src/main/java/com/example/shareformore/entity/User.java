@@ -24,15 +24,19 @@ public class User implements UserDetails {
     int balance;
     String self_introduction;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "author", fetch = FetchType.EAGER)
     Set<SpecialColumn> specialColumnSet;
+    @JsonIgnore
     @OneToMany(mappedBy = "author")
     Set<Work> workSet;
 
+    @JsonIgnore
     @JoinTable(name = "collection",joinColumns = @JoinColumn(name="userId"),inverseJoinColumns = @JoinColumn(name = "workId"))
     @ManyToMany
     Set<Work> collection;
 
+    @JsonIgnore
     @JoinTable(name = "payment",joinColumns = @JoinColumn(name="userId"),inverseJoinColumns = @JoinColumn(name = "workId"))
     @ManyToMany(cascade = {CascadeType.REMOVE, CascadeType.MERGE})
     Set<Work> payment;
@@ -146,6 +150,7 @@ public class User implements UserDetails {
         this.self_introduction = self_introduction;
     }
 
+    @JsonIgnore
     public Set<SpecialColumn> getColumnSet() {
         return specialColumnSet;
     }

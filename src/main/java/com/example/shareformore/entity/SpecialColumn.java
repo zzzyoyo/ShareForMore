@@ -1,5 +1,7 @@
 package com.example.shareformore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -21,9 +23,11 @@ public class SpecialColumn {
     Timestamp updateTime;
     String description;
 
+    @JsonIgnore
     @JoinColumn(name = "authorId")
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     User author;
+    @JsonIgnore
     @OneToMany(mappedBy = "specialColumn")
     Set<Work> workSet;
 
