@@ -5,6 +5,7 @@ import com.example.shareformore.entity.Tag;
 import com.example.shareformore.entity.User;
 import com.example.shareformore.entity.Work;
 import com.example.shareformore.exception.*;
+import com.example.shareformore.exception.tag.TagNotFoundException;
 import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.repository.ColumnRepository;
 import com.example.shareformore.repository.TagRepository;

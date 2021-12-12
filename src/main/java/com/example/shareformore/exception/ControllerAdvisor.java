@@ -1,5 +1,7 @@
 package com.example.shareformore.exception;
 
+import com.example.shareformore.exception.tag.TagNameHasBeenUsedException;
+import com.example.shareformore.exception.tag.TagNotFoundException;
 import com.example.shareformore.exception.user.BadCredentialsException;
 import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.exception.user.UsernameHasBeenRegisteredException;

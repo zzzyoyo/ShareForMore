@@ -24,12 +24,12 @@ public class TagController {
     @GetMapping("/list")
     public ResponseEntity<?> listAllTags(){
         logger.debug("get a list post");
-        return ResponseEntity.ok(tagService.listAllTags());
+        return tagService.listAllTags().getResponseEntity();
     }
 
     @GetMapping("/new")
     public ResponseEntity<?> createTag(@RequestParam("name")String name){
         logger.debug("get a new tag post");
-        return ResponseEntity.ok(tagService.createTag(name));
+        return tagService.createTag(name).getResponseEntity();
     }
 }
