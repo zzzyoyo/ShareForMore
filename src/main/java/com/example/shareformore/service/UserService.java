@@ -1,10 +1,10 @@
 package com.example.shareformore.service;
 
 import com.example.shareformore.entity.User;
-import com.example.shareformore.exception.BadCredentialsException;
+import com.example.shareformore.exception.user.BadCredentialsException;
 import com.example.shareformore.exception.BalanceOverflowException;
-import com.example.shareformore.exception.UsernameHasBeenRegisteredException;
-import com.example.shareformore.exception.UserNotFoundException;
+import com.example.shareformore.exception.user.UsernameHasBeenRegisteredException;
+import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.repository.UserRepository;
 import com.example.shareformore.security.jwt.JwtConfig;
 import com.example.shareformore.security.jwt.JwtUtils;
@@ -37,7 +37,7 @@ public class UserService {
         if(loginUser == null) {
             //用户不存在
             logger.debug("user not found error");
-            throw new UserNotFoundException("name '" + name + "'");
+            throw new UserNotFoundException(name);
         }
         else if(!loginUser.getPassword().equals(password)){
             //密码错误
@@ -76,7 +76,7 @@ public class UserService {
         if(user == null) {
             //用户不存在
             logger.debug("user not found error");
-            throw new UserNotFoundException("id '" + userId + "'");
+            throw new UserNotFoundException(userId);
         }
         int newBalance = user.getBalance() + money;
         if(newBalance < 0){
@@ -96,7 +96,7 @@ public class UserService {
         if(user == null) {
             //用户不存在
             logger.debug("user not found error");
-            throw new UserNotFoundException("id '" + userId + "'");
+            throw new UserNotFoundException(userId);
         }
         Map<String, Object> map = new HashMap<>();
         map.put("obj", user);
@@ -108,7 +108,7 @@ public class UserService {
         if(user == null) {
             //用户不存在
             logger.debug("user not found error");
-            throw new UserNotFoundException("id '" + userId + "'");
+            throw new UserNotFoundException(userId);
         }
         user.setSelf_introduction(selfIntro);
         userRepository.save(user);

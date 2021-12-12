@@ -1,5 +1,8 @@
 package com.example.shareformore.exception;
 
+import com.example.shareformore.exception.user.BadCredentialsException;
+import com.example.shareformore.exception.user.UserNotFoundException;
+import com.example.shareformore.exception.user.UsernameHasBeenRegisteredException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -5,6 +5,7 @@ import com.example.shareformore.entity.Tag;
 import com.example.shareformore.entity.User;
 import com.example.shareformore.entity.Work;
 import com.example.shareformore.exception.*;
+import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.repository.ColumnRepository;
 import com.example.shareformore.repository.TagRepository;
 import com.example.shareformore.repository.UserRepository;
@@ -131,7 +132,7 @@ public class WorkManagementService {
         Work work = workRepository.findByWorkId(work_id);
         if (user == null) {
             logger.debug("user not found error");
-            throw new UserNotFoundException("name '" + username + "'");
+            throw new UserNotFoundException(username);
         }
         if (work == null) {
             logger.debug("work not found error");
@@ -226,7 +227,7 @@ public class WorkManagementService {
         Work work = workRepository.findByWorkId(workId);
         if(user == null) {
             logger.debug("user not found error");
-            throw new UserNotFoundException("id '" + userId + "'");
+            throw new UserNotFoundException(userId);
         }
         if (work == null) {
             logger.debug("work not found error");

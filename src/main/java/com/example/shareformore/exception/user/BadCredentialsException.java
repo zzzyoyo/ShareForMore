@@ -1,9 +1,9 @@
-package com.example.shareformore.exception;
+package com.example.shareformore.exception.user;
 
 public class BadCredentialsException extends RuntimeException {
     private static final long serialVersionUID = -6074753940710869977L;
 
-    public  BadCredentialsException(String ex) {
+    public BadCredentialsException(String ex) {
         super(ex);
     }
 }

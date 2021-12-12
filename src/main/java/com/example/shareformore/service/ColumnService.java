@@ -1,12 +1,11 @@
 package com.example.shareformore.service;
 
 import com.example.shareformore.entity.SpecialColumn;
-import com.example.shareformore.entity.Tag;
 import com.example.shareformore.entity.User;
 import com.example.shareformore.entity.Work;
 import com.example.shareformore.exception.*;
+import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.repository.ColumnRepository;
-import com.example.shareformore.repository.TagRepository;
 import com.example.shareformore.repository.UserRepository;
 import com.example.shareformore.repository.WorkRepository;
 import org.slf4j.Logger;
@@ -38,7 +37,7 @@ public class ColumnService {
         User user = userRepository.findByUserId(authorId);
         if (user == null) {
             logger.debug("user not found error");
-            throw new UserNotFoundException("id '" + authorId + "'");
+            throw new UserNotFoundException(authorId);
         }
 
         SpecialColumn column = columnRepository.findByColumnName(columnName);
@@ -63,7 +62,7 @@ public class ColumnService {
         User user = userRepository.findByUserId(authorId);
         if (user == null) {
             logger.debug("user not found error");
-            throw new UserNotFoundException("id '" + authorId + "'");
+            throw new UserNotFoundException(authorId);
         }
 
         SpecialColumn column = columnRepository.findByColumnId(columnId);
@@ -127,7 +126,7 @@ public class ColumnService {
         User user = userRepository.findByUserId(authorId);
         if (user == null) {
             logger.debug("user not found error");
-            throw new UserNotFoundException("id '" + authorId + "'");
+            throw new UserNotFoundException(authorId);
         }
 
         List<SpecialColumn> columns = new ArrayList<>(user.getColumnSet());

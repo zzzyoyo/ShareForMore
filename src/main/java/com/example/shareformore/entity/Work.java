@@ -28,12 +28,12 @@ public class Work {
     int price;
     @JsonIgnore
     @JoinColumn(name = "authorId")
-    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.REFRESH)
     User author;
 
     @JsonIgnore
     @JoinColumn(name = "columnId")
-    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.MERGE)
     SpecialColumn specialColumn;
 
     @JsonIgnore
