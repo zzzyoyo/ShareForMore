@@ -19,7 +19,7 @@ public class ColumnController {
     public ResponseEntity<?> newColumn(@RequestParam("author_id")Long authorId,
                                        @RequestParam("column_name")String columnName,
                                        @RequestParam String description) {
-        return ResponseEntity.ok(columnService.newColumn(authorId, columnName, description));
+        return columnService.newColumn(authorId, columnName, description).getResponseEntity();
     }
 
     @PostMapping("/update")
@@ -27,22 +27,16 @@ public class ColumnController {
                                           @RequestParam("column_id")Long columnId,
                                           @RequestParam("column_name") String columnName,
                                           @RequestParam String description) {
-        return ResponseEntity.ok(columnService.updateColumn(authorId, columnId, columnName, description));
-    }
-
-    @PostMapping("/add")
-    public ResponseEntity<?> addColumn(@RequestParam("column_id")Long columnId,
-                                       @RequestParam("work_id")Long workId) {
-        return ResponseEntity.ok(columnService.addColumn(columnId, workId));
+        return columnService.updateColumn(authorId, columnId, columnName, description).getResponseEntity();
     }
 
     @PostMapping("/delete")
     public ResponseEntity<?> deleteColumn(@RequestParam("column_id")Long columnId) {
-        return ResponseEntity.ok(columnService.deleteColumn(columnId));
+        return columnService.deleteColumn(columnId).getResponseEntity();
     }
 
     @GetMapping("/list")
     public ResponseEntity<?> listColumn(@RequestParam("author_id")Long authorId) {
-        return ResponseEntity.ok(columnService.listColumn(authorId));
+        return columnService.listColumn(authorId).getResponseEntity();
     }
 }

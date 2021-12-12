@@ -1,5 +1,7 @@
 package com.example.shareformore.exception;
 
+import com.example.shareformore.exception.column.ColumnNotFoundException;
+import com.example.shareformore.exception.column.IllegalUpdateColumnException;
 import com.example.shareformore.exception.tag.TagNameHasBeenUsedException;
 import com.example.shareformore.exception.tag.TagNotFoundException;
 import com.example.shareformore.exception.user.BadCredentialsException;
@@ -27,7 +29,7 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
                 .getResponseEntity();
     }
 
-    @ExceptionHandler({BadCredentialsException.class, IllegalUpdateException.class})
+    @ExceptionHandler({BadCredentialsException.class, IllegalUpdateWorkException.class, IllegalUpdateColumnException.class})
     ResponseEntity<?> handleBadCredentialsException(RuntimeException ex) {
         return (new ResponseHolder(HttpStatus.FORBIDDEN.value(), "error", ex.getMessage(), null, null, null))
                 .getResponseEntity();

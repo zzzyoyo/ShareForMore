@@ -25,7 +25,7 @@ public class SpecialColumn {
 
     @JsonIgnore
     @JoinColumn(name = "authorId")
-    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     User author;
     @JsonIgnore
     @OneToMany(mappedBy = "specialColumn")

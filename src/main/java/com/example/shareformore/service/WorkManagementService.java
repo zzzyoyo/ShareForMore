@@ -5,6 +5,7 @@ import com.example.shareformore.entity.Tag;
 import com.example.shareformore.entity.User;
 import com.example.shareformore.entity.Work;
 import com.example.shareformore.exception.*;
+import com.example.shareformore.exception.column.ColumnNotFoundException;
 import com.example.shareformore.exception.tag.TagNotFoundException;
 import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.repository.ColumnRepository;
@@ -104,8 +105,8 @@ public class WorkManagementService {
         }
 
         if (!user.equals(work.getAuthor())) {
-            logger.debug("tag not found error");
-            throw new IllegalUpdateException(author, work_id);
+            logger.debug("illegal update work error");
+            throw new IllegalUpdateWorkException(author, work_id);
         }
 
 

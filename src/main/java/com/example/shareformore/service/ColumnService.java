@@ -4,13 +4,17 @@ import com.example.shareformore.entity.SpecialColumn;
 import com.example.shareformore.entity.User;
 import com.example.shareformore.entity.Work;
 import com.example.shareformore.exception.*;
+import com.example.shareformore.exception.column.ColumnNotFoundException;
+import com.example.shareformore.exception.column.IllegalUpdateColumnException;
 import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.repository.ColumnRepository;
 import com.example.shareformore.repository.UserRepository;
 import com.example.shareformore.repository.WorkRepository;
+import com.example.shareformore.response.ResponseHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,32 +37,20 @@ public class ColumnService {
         this.columnRepository = columnRepository;
     }
 
-    public Map<String, Object> newColumn(Long authorId, String columnName, String description) {
+    public ResponseHolder newColumn(Long authorId, String columnName, String description) {
         User user = userRepository.findByUserId(authorId);
         if (user == null) {
             logger.debug("user not found error");
             throw new UserNotFoundException(authorId);
         }
 
-        SpecialColumn column = columnRepository.findByColumnName(columnName);
-        if(column != null){
-            // 有个问题：一个用户注册的专栏名是否其他用户没法再用？
-            logger.debug("column name used error");
-
-            Map<String, Object> map = new HashMap<>();
-            map.put("data", "error");
-            return map;
-        }
-
-        column = new SpecialColumn(user, columnName, description);
+        SpecialColumn column = new SpecialColumn(user, columnName, description);
         columnRepository.save(column);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("data", "success");
-        return map;
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
-    public Map<String, Object> updateColumn(Long authorId, Long columnId, String columnName, String description) {
+    public ResponseHolder updateColumn(Long authorId, Long columnId, String columnName, String description) {
         User user = userRepository.findByUserId(authorId);
         if (user == null) {
             logger.debug("user not found error");
@@ -72,41 +64,18 @@ public class ColumnService {
         }
 
         if (!column.getAuthor().equals(user)) {
-            logger.debug("illegal update error");
-            throw new IllegalUpdateException(user.getUsername(), columnId);
+            logger.debug("illegal update column error");
+            throw new IllegalUpdateColumnException(user.getUsername(), columnId);
         }
 
         column.setColumnName(columnName);
         column.setDescription(description);
         columnRepository.save(column);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("data", "success");
-        return map;
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
-    public Map<String, Object> addColumn(Long columnId, Long workId) {
-        SpecialColumn column = columnRepository.findByColumnId(columnId);
-        if (column == null) {
-            logger.debug("column not found error");
-            throw new ColumnNotFoundException(columnId);
-        }
-
-        Work work = workRepository.findByWorkId(workId);
-        if (work == null) {
-            logger.debug("work not found error");
-            throw new WorkNotFoundException(workId);
-        }
-
-        column.getWorkSet().add(work);
-        columnRepository.save(column);
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("data", "success");
-        return map;
-    }
-
-    public Map<String, Object> deleteColumn(Long columnId) {
+    public ResponseHolder deleteColumn(Long columnId) {
         SpecialColumn column = columnRepository.findByColumnId(columnId);
         if (column == null) {
             logger.debug("column not found error");
@@ -117,12 +86,10 @@ public class ColumnService {
         columnRepository.save(column);
         columnRepository.delete(column);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("data", "success");
-        return map;
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
-    public Map<String, Object> listColumn(Long authorId) {
+    public ResponseHolder listColumn(Long authorId) {
         User user = userRepository.findByUserId(authorId);
         if (user == null) {
             logger.debug("user not found error");
@@ -131,8 +98,6 @@ public class ColumnService {
 
         List<SpecialColumn> columns = new ArrayList<>(user.getColumnSet());
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("list", columns);
-        return map;
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, columns, null, null);
     }
 }
