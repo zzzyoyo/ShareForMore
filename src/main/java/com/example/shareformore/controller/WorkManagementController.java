@@ -33,28 +33,28 @@ public class WorkManagementController {
     @PostMapping("/new")
     public ResponseEntity<?> uploadWork(@RequestHeader String token,
                                         MultipartFile image,
-                                        @RequestParam(required = false) Long column_id,
-                                        @RequestParam(required = false) List<Long> tag_list,
+                                        @RequestParam(value = "column_id", required = false) Long columnId,
+                                        @RequestParam(value = "tag_list", required = false) List<Long> tagList,
                                         @NotBlank(message = "缺少标题") @RequestParam String title,
                                         @NotBlank(message = "缺少简介") @RequestParam String description,
                                         @RequestParam(required = false) String content,
                                         @Min(value = 1, message = "价格必须为正整数") @RequestParam int price) throws IOException {
         logger.debug("get an upload post from " + JwtUtils.getUsername(token));
-        return ResponseEntity.ok(workManagementService.uploadWork(JwtUtils.getUsername(token), column_id, tag_list, title, description,content, price, image));
+        return workManagementService.uploadWork(JwtUtils.getUsername(token), columnId, tagList, title, description,content, price, image).getResponseEntity();
     }
 
     @PostMapping("/update")
     public ResponseEntity<?> updateWork(@RequestHeader String token,
                               MultipartFile image,
-                              @Min(value = 1, message = "不合法的ID") @RequestParam Long work_id,
-                              @RequestParam(required = false) Long column_id,
-                              @RequestParam(required = false) List<Long> tag_list,
+                              @Min(value = 1, message = "不合法的ID") @RequestParam("work_id") Long workId,
+                              @RequestParam(value = "column_id", required = false) Long columnId,
+                              @RequestParam(value = "tag_list", required = false) List<Long> tagList,
                               @NotBlank(message = "缺少标题") @RequestParam String title,
                               @NotBlank(message = "缺少简介") @RequestParam String description,
                               @RequestParam(required = false) String content,
                               @Min(value = 1, message = "价格必须为正整数") @RequestParam int price) throws IOException {
         logger.debug("get an update post from " + JwtUtils.getUsername(token));
-        return ResponseEntity.ok(workManagementService.updateWork(JwtUtils.getUsername(token), work_id, column_id, tag_list, title, description,content, price, image));
+        return workManagementService.updateWork(JwtUtils.getUsername(token), workId, columnId, tagList, title, description, content, price, image).getResponseEntity();
     }
 
     @GetMapping("/list")
@@ -62,28 +62,17 @@ public class WorkManagementController {
                                       @RequestParam(required = false) String tag,
                                       @RequestParam(required = false) String name,
                                       @RequestParam(required = false, value = "column_id") Long columnId) {
-        return ResponseEntity.ok(workManagementService.listWork(title, tag, name, columnId));
+        return workManagementService.listWork(title, tag, name, columnId).getResponseEntity();
     }
 
     @GetMapping("/detail")
     public ResponseEntity<?> showWorkDetail(@RequestParam("user_id")Long userId, @RequestParam("work_id") Long workId) {
-        Map<String, Object> retMap = workManagementService.showWorkDetail(userId, workId);
-        boolean isAvailable = (boolean) retMap.remove("isAvailable");
-        if (isAvailable) {
-            return ResponseEntity.ok(retMap);
-        } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(retMap);
-        }
+        return workManagementService.showWorkDetail(userId, workId).getResponseEntity();
     }
 
-    @GetMapping("/tags")
-    public ResponseEntity<?> showWorkTags(@RequestParam("work_id") Long workId) {
-        return ResponseEntity.ok(workManagementService.showWorkTags(workId));
-    }
-
-    @RequestMapping("/buy")
-    public ResponseEntity<?> payWork(@RequestHeader String token, @RequestParam Long work_id) {
+    @GetMapping("/buy")
+    public ResponseEntity<?> payWork(@RequestHeader String token, @RequestParam("work_id") Long workId) {
         logger.debug("get an pay request from " + JwtUtils.getUsername(token));
-        return ResponseEntity.ok(workManagementService.payWork(JwtUtils.getUsername(token), work_id));
+        return workManagementService.payWork(JwtUtils.getUsername(token), workId).getResponseEntity();
     }
 }

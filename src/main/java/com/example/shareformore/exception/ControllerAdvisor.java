@@ -5,8 +5,10 @@ import com.example.shareformore.exception.column.IllegalUpdateColumnException;
 import com.example.shareformore.exception.tag.TagNameHasBeenUsedException;
 import com.example.shareformore.exception.tag.TagNotFoundException;
 import com.example.shareformore.exception.user.BadCredentialsException;
+import com.example.shareformore.exception.user.BalanceOverflowException;
 import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.exception.user.UsernameHasBeenRegisteredException;
+import com.example.shareformore.exception.work.*;
 import com.example.shareformore.response.ResponseHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,21 +37,16 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
                 .getResponseEntity();
     }
 
-    @ExceptionHandler({UsernameHasBeenRegisteredException.class, TagNameHasBeenUsedException.class, BalanceOverflowException.class, EmptyWorkException.class, IOException.class})
-    ResponseEntity<?> handleBadRequestException(RuntimeException ex) {
-        return (new ResponseHolder(HttpStatus.BAD_REQUEST.value(), "error", ex.getMessage(), null, null, null))
+    @ExceptionHandler({WorkNotAvailableException.class})
+    ResponseEntity<?> handleWorkNotAvailableException(WorkNotAvailableException ex) {
+        return (new ResponseHolder(HttpStatus.FORBIDDEN.value(), "error", ex.getAuthorName(), ex.getTagList(), ex.getWork(), null))
                 .getResponseEntity();
     }
 
-    /**
-     * 出错时按照前端的要求返回的body
-     * @param message
-     * @return body
-     */
-    private Map<String, String> getBody(String message){
-        Map<String, String> body = new HashMap<>();
-        body.put("data", "error");
-        body.put("message", message);
-        return body;
+    @ExceptionHandler({UsernameHasBeenRegisteredException.class, TagNameHasBeenUsedException.class, BalanceOverflowException.class,
+            EmptyWorkException.class, IOException.class, AuthorBuyWorkException.class, WorkHasBeenBoughtException.class, InsufficientBalanceException.class})
+    ResponseEntity<?> handleBadRequestException(RuntimeException ex) {
+        return (new ResponseHolder(HttpStatus.BAD_REQUEST.value(), "error", ex.getMessage(), null, null, null))
+                .getResponseEntity();
     }
 }

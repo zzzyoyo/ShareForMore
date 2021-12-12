@@ -1,4 +1,4 @@
-package com.example.shareformore.exception;
+package com.example.shareformore.exception.work;
 
 public class AuthorBuyWorkException extends RuntimeException {
     private static final long serialVersionUID = 8166707722096024168L;

@@ -1,4 +1,4 @@
-package com.example.shareformore.exception;
+package com.example.shareformore.exception.user;
 
 public class BalanceOverflowException extends RuntimeException {
     private static final long serialVersionUID = -6074753940710869977L;

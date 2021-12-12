@@ -2,7 +2,7 @@ package com.example.shareformore.service;
 
 import com.example.shareformore.entity.User;
 import com.example.shareformore.exception.user.BadCredentialsException;
-import com.example.shareformore.exception.BalanceOverflowException;
+import com.example.shareformore.exception.user.BalanceOverflowException;
 import com.example.shareformore.exception.user.UsernameHasBeenRegisteredException;
 import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.repository.UserRepository;
@@ -14,9 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class UserService {

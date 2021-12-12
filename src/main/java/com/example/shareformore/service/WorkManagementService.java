@@ -4,23 +4,26 @@ import com.example.shareformore.entity.SpecialColumn;
 import com.example.shareformore.entity.Tag;
 import com.example.shareformore.entity.User;
 import com.example.shareformore.entity.Work;
-import com.example.shareformore.exception.*;
 import com.example.shareformore.exception.column.ColumnNotFoundException;
 import com.example.shareformore.exception.tag.TagNotFoundException;
 import com.example.shareformore.exception.user.UserNotFoundException;
+import com.example.shareformore.exception.work.*;
 import com.example.shareformore.repository.ColumnRepository;
 import com.example.shareformore.repository.TagRepository;
 import com.example.shareformore.repository.UserRepository;
 import com.example.shareformore.repository.WorkRepository;
+import com.example.shareformore.response.ResponseHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class WorkManagementService {
@@ -51,8 +54,13 @@ public class WorkManagementService {
      * 上传作品
      */
 
-    public Map uploadWork(String author, Long column_id, List<Long> tag_list, String title, String description, String content, int price, MultipartFile image) throws IOException {
+    public ResponseHolder uploadWork(String author, Long columnId, List<Long> tagList, String title, String description,
+                                     String content, int price, MultipartFile image) throws IOException {
         User user = userRepository.findByName(author);
+        if (user == null) {
+            logger.debug("user not found error");
+            throw new UserNotFoundException(author);
+        }
 
         if ((content == null || content.isBlank()) && image == null) {
             logger.debug("empty work error");
@@ -60,59 +68,63 @@ public class WorkManagementService {
         }
 
         SpecialColumn column = null;
-        if (column_id != null) {
-            column = columnRepository.findByColumnId(column_id);
-            if (column == null && column_id >= 0) {
+        if (columnId != null) {
+            column = columnRepository.findByColumnId(columnId);
+            if (column == null && columnId >= 0) {
                 logger.debug("column not found error");
-                throw new ColumnNotFoundException(column_id);
+                throw new ColumnNotFoundException(columnId);
             }
         }
 
         Set<Tag> tagSet = null;
-        if (tag_list != null) {
-            tagSet = getTagSet(tag_list);
+        if (tagList != null) {
+            tagSet = getTagSet(tagList);
         }
 
         Work work = new Work(user, column, title, description, content, image.getBytes(), price, tagSet);
         workRepository.save(work);
 
-        Map<String, String> map = new HashMap<>();
-        map.put("data", "success");
-        return map;
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
-    public Map updateWork(String author, Long work_id, Long column_id, List<Long> tag_list, String title, String description, String content, int price, MultipartFile image) throws IOException {
+    public ResponseHolder updateWork(String author, Long workId, Long columnId, List<Long> tagList, String title,
+                                     String description, String content, int price, MultipartFile image) throws IOException {
+        User user = userRepository.findByName(author);
+        if (user == null) {
+            logger.debug("user not found error");
+            throw new UserNotFoundException(author);
+        }
+
         if ((content == null || content.isBlank()) && image == null) {
             logger.debug("empty work error");
             throw new EmptyWorkException();
         }
 
-        User user = userRepository.findByName(author);
-        Work work = workRepository.findByWorkId(work_id);
+        Work work = workRepository.findByWorkId(workId);
 
         if (work == null) {
             logger.debug("work not found error");
-            throw new WorkNotFoundException(work_id);
+            throw new WorkNotFoundException(workId);
         }
 
         SpecialColumn column = null;
-        if (column_id != null) {
-            column = columnRepository.findByColumnId(column_id);
-            if (column == null && column_id >= 0) {
+        if (columnId != null) {
+            column = columnRepository.findByColumnId(columnId);
+            if (column == null && columnId >= 0) {
                 logger.debug("column not found error");
-                throw new ColumnNotFoundException(column_id);
+                throw new ColumnNotFoundException(columnId);
             }
         }
 
         if (!user.equals(work.getAuthor())) {
             logger.debug("illegal update work error");
-            throw new IllegalUpdateWorkException(author, work_id);
+            throw new IllegalUpdateWorkException(author, workId);
         }
 
 
         Set<Tag> tagSet = null;
-        if (tag_list != null) {
-            tagSet = getTagSet(tag_list);
+        if (tagList != null) {
+            tagSet = getTagSet(tagList);
         }
         work.setColumn(column);
         work.setTitle(title);
@@ -124,18 +136,17 @@ public class WorkManagementService {
         work.setUpdateTime(new Timestamp(new Date().getTime()));
         workRepository.save(work);
 
-        Map<String, String> map = new HashMap<>();
-        map.put("data", "success");
-        return map;
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
-    public Map payWork(String username, Long work_id) {
+    public ResponseHolder payWork(String username, Long work_id) {
         User user = userRepository.findByName(username);
-        Work work = workRepository.findByWorkId(work_id);
         if (user == null) {
             logger.debug("user not found error");
             throw new UserNotFoundException(username);
         }
+
+        Work work = workRepository.findByWorkId(work_id);
         if (work == null) {
             logger.debug("work not found error");
             throw new WorkNotFoundException(work_id);
@@ -159,9 +170,8 @@ public class WorkManagementService {
         }
         user.payWork(work);
         userRepository.save(user);
-        Map<String, String> map = new HashMap<>();
-        map.put("data", "success");
-        return map;
+
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
     private Set<Tag> getTagSet(List<Long> tag_list) {
@@ -177,7 +187,7 @@ public class WorkManagementService {
         return tagSet;
     }
 
-    public Map<String, Object> listWork(String title, String tag, String name, Long columnId) {
+    public ResponseHolder listWork(String title, String tag, String name, Long columnId) {
         List<Work> works;
         if (title != null && !title.isEmpty()) {
             // 根据标题查找
@@ -219,44 +229,38 @@ public class WorkManagementService {
         // 按照发布最新的在前的顺序排序
         works.sort(Comparator.comparing(Work::getCreateTime).reversed());
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("list", works);
-        return map;
+        List<Map<String, Object>> workList = works.stream().map(work -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("work", work);
+            map.put("tags", new ArrayList<>(work.getTagSet()));
+            map.put("author", work.getAuthor().getName());
+            return map;
+        }).collect(Collectors.toList());
+
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, workList, null, null);
     }
 
-    public Map<String, Object> showWorkDetail(Long userId, Long workId) {
+    public ResponseHolder showWorkDetail(Long userId, Long workId) {
         User user = userRepository.findByUserId(userId);
-        Work work = workRepository.findByWorkId(workId);
         if(user == null) {
             logger.debug("user not found error");
             throw new UserNotFoundException(userId);
         }
-        if (work == null) {
-            logger.debug("work not found error");
-            throw new WorkNotFoundException(workId);
-        }
 
-        boolean isAvailable = work.getPurchase().contains(user) || work.getAuthor().equals(user);
-
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("isAvailable", isAvailable); // 有无权限
-        map.put("data", (isAvailable) ? work.getAuthor().getName() : "forbidden");
-        map.put("obj", work);
-        return map;
-    }
-
-    public Map<String, Object> showWorkTags(Long workId) {
         Work work = workRepository.findByWorkId(workId);
         if (work == null) {
             logger.debug("work not found error");
             throw new WorkNotFoundException(workId);
         }
 
-        List<Tag> tags = new ArrayList<>(work.getTagSet());
+        String authorName = work.getAuthor().getName();
+        List<Tag> tagList = new ArrayList<>(work.getTagSet());
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("list", tags);
-        return map;
+        if (!work.getPurchase().contains(user) && !work.getAuthor().equals(user)) {
+            logger.debug("work not available error");
+            throw new WorkNotAvailableException(userId, workId, authorName, tagList, work);
+        }
+
+        return new ResponseHolder(HttpStatus.OK.value(), authorName, null, tagList, work, null);
     }
 }
