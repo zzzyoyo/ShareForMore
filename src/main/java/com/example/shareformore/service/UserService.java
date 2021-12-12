@@ -1,5 +1,6 @@
 package com.example.shareformore.service;
 
+import com.example.shareformore.dto.UserDto;
 import com.example.shareformore.entity.User;
 import com.example.shareformore.exception.user.BadCredentialsException;
 import com.example.shareformore.exception.user.BalanceOverflowException;
@@ -52,7 +53,7 @@ public class UserService {
         String token = jwtUtils.generateToken(name);
         logger.debug("Login success");
 
-        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, loginUser, token);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, UserDto.wrap(loginUser), token);
     }
 
     public ResponseHolder register(String name, String password){
@@ -94,7 +95,7 @@ public class UserService {
             throw new UserNotFoundException(userId);
         }
 
-        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, user, null);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, UserDto.wrap(user), null);
     }
 
     public ResponseHolder changeIntro(Long userId, String selfIntro){

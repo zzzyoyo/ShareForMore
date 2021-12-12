@@ -1,5 +1,7 @@
 package com.example.shareformore.exception.work;
 
+import com.example.shareformore.dto.TagDto;
+import com.example.shareformore.dto.WorkDto;
 import com.example.shareformore.entity.Tag;
 import com.example.shareformore.entity.Work;
 
@@ -9,10 +11,10 @@ public class WorkNotAvailableException extends RuntimeException {
     private static final long serialVersionUID = 5489192019064307564L;
 
     private final String authorName;
-    private final List<Tag> tagList;
-    private final Work work;
+    private final List<TagDto> tagList;
+    private final WorkDto work;
 
-    public WorkNotAvailableException(long userId, long workId, String authorName, List<Tag> tagList, Work work) {
+    public WorkNotAvailableException(long userId, long workId, String authorName, List<TagDto> tagList, WorkDto work) {
         super("Work " + workId + " is not available to user " + userId);
         this.authorName = authorName;
         this.tagList = tagList;
@@ -23,11 +25,11 @@ public class WorkNotAvailableException extends RuntimeException {
         return authorName;
     }
 
-    public List<Tag> getTagList() {
+    public List<TagDto> getTagList() {
         return tagList;
     }
 
-    public Work getWork() {
+    public WorkDto getWork() {
         return work;
     }
 }

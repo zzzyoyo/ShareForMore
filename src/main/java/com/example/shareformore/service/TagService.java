@@ -1,5 +1,6 @@
 package com.example.shareformore.service;
 
+import com.example.shareformore.dto.TagDto;
 import com.example.shareformore.entity.Tag;
 import com.example.shareformore.exception.tag.TagNameHasBeenUsedException;
 import com.example.shareformore.repository.TagRepository;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TagService {
@@ -30,8 +32,9 @@ public class TagService {
         Map<String, List> map = new HashMap<>();
         List<Tag> allTags = new LinkedList<>();
         tagRepository.findAll().forEach(allTags::add);
+        List<TagDto> tagList = allTags.stream().map(TagDto::wrap).collect(Collectors.toList());
 
-        return new ResponseHolder(HttpStatus.OK.value(), "success", null, allTags, null, null);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, tagList, null, null);
     }
 
     public ResponseHolder createTag(String tagName){
@@ -44,6 +47,6 @@ public class TagService {
         tag = new Tag(tagName);
         tagRepository.save(tag);
 
-        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, tag, null);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, TagDto.wrap(tag), null);
     }
 }

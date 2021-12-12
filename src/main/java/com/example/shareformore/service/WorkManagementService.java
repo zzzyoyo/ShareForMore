@@ -1,5 +1,8 @@
 package com.example.shareformore.service;
 
+import com.example.shareformore.dto.TagDto;
+import com.example.shareformore.dto.WorkDetailDto;
+import com.example.shareformore.dto.WorkDto;
 import com.example.shareformore.entity.SpecialColumn;
 import com.example.shareformore.entity.Tag;
 import com.example.shareformore.entity.User;
@@ -222,7 +225,6 @@ public class WorkManagementService {
         } else {
             // 返回全部作品
             works = new ArrayList<>();
-            Iterable<Work> works1 = workRepository.findAll();
             workRepository.findAll().forEach(works::add);
         }
 
@@ -231,8 +233,8 @@ public class WorkManagementService {
 
         List<Map<String, Object>> workList = works.stream().map(work -> {
             Map<String, Object> map = new HashMap<>();
-            map.put("work", work);
-            map.put("tags", new ArrayList<>(work.getTagSet()));
+            map.put("work", WorkDto.wrap(work));
+            map.put("tags", (new ArrayList<>(work.getTagSet())).stream().map(TagDto::wrap).collect(Collectors.toList()));
             map.put("author", work.getAuthor().getName());
             return map;
         }).collect(Collectors.toList());
@@ -254,13 +256,13 @@ public class WorkManagementService {
         }
 
         String authorName = work.getAuthor().getName();
-        List<Tag> tagList = new ArrayList<>(work.getTagSet());
+        List<TagDto> tagList = (new ArrayList<>(work.getTagSet())).stream().map(TagDto::wrap).collect(Collectors.toList());
 
         if (!work.getPurchase().contains(user) && !work.getAuthor().equals(user)) {
             logger.debug("work not available error");
-            throw new WorkNotAvailableException(userId, workId, authorName, tagList, work);
+            throw new WorkNotAvailableException(userId, workId, authorName, tagList, WorkDto.wrap(work));
         }
 
-        return new ResponseHolder(HttpStatus.OK.value(), authorName, null, tagList, work, null);
+        return new ResponseHolder(HttpStatus.OK.value(), authorName, null, tagList, WorkDetailDto.wrap(work), null);
     }
 }

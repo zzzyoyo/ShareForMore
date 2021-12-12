@@ -1,5 +1,6 @@
 package com.example.shareformore.service;
 
+import com.example.shareformore.dto.ColumnDto;
 import com.example.shareformore.entity.SpecialColumn;
 import com.example.shareformore.entity.User;
 import com.example.shareformore.entity.Work;
@@ -17,10 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ColumnService {
@@ -70,6 +70,7 @@ public class ColumnService {
 
         column.setColumnName(columnName);
         column.setDescription(description);
+        column.setUpdateTime(new Timestamp(new Date().getTime()));
         columnRepository.save(column);
 
         return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
@@ -97,7 +98,8 @@ public class ColumnService {
         }
 
         List<SpecialColumn> columns = new ArrayList<>(user.getColumnSet());
+        List<ColumnDto> columnList = columns.stream().map(ColumnDto::wrap).collect(Collectors.toList());;
 
-        return new ResponseHolder(HttpStatus.OK.value(), "success", null, columns, null, null);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, columnList, null, null);
     }
 }
