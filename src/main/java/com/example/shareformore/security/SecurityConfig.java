@@ -34,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // url 拦截
         http.authorizeRequests()
-                .antMatchers("/images/**", "/user/login","/user/register","/api/getCaptcha","/api/showAllPic").permitAll() //不需要认证的服务
+                .antMatchers("/hello", "/images/**", "/user/login","/user/register","/api/getCaptcha","/api/showAllPic").permitAll() //不需要认证的服务
                 .anyRequest().authenticated();//其他所有的请求都必须登录，认证后才能访问。
         //关闭 csrf 防护
         http.cors().and().csrf().disable();
