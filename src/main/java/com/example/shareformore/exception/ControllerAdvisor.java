@@ -3,6 +3,7 @@ package com.example.shareformore.exception;
 import com.example.shareformore.exception.user.BadCredentialsException;
 import com.example.shareformore.exception.user.UserNotFoundException;
 import com.example.shareformore.exception.user.UsernameHasBeenRegisteredException;
+import com.example.shareformore.response.ResponseHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,17 +21,20 @@ import java.util.Map;
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     @ExceptionHandler({UserNotFoundException.class, ColumnNotFoundException.class, TagNotFoundException.class, WorkNotFoundException.class})
     ResponseEntity<?> handleNotFoundException(RuntimeException ex) {
-        return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.NOT_FOUND);
+        return (new ResponseHolder(HttpStatus.NOT_FOUND.value(), "error", ex.getMessage(), null, null, null))
+                .getResponseEntity();
     }
 
     @ExceptionHandler({BadCredentialsException.class, IllegalUpdateException.class})
     ResponseEntity<?> handleBadCredentialsException(RuntimeException ex) {
-        return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.FORBIDDEN);
+        return (new ResponseHolder(HttpStatus.FORBIDDEN.value(), "error", ex.getMessage(), null, null, null))
+                .getResponseEntity();
     }
 
     @ExceptionHandler({UsernameHasBeenRegisteredException.class, TagNameHasBeenUsedException.class, BalanceOverflowException.class, EmptyWorkException.class, IOException.class})
     ResponseEntity<?> handleBadRequestException(RuntimeException ex) {
-        return new ResponseEntity<>(getBody(ex.getMessage()), HttpStatus.BAD_REQUEST);
+        return (new ResponseHolder(HttpStatus.BAD_REQUEST.value(), "error", ex.getMessage(), null, null, null))
+                .getResponseEntity();
     }
 
     /**

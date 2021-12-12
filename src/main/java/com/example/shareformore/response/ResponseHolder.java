@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 public class ResponseHolder {
-    private int status;
-    private String data;
-    private String msg;
-    private List<?> list;
-    private Object obj;
-    private String token;
+    private final int status;
+    private final String data;
+    private final String msg;
+    private final List<?> list;
+    private final Object obj;
+    private final String token;
 
     public ResponseHolder(int status, String data, String msg, List<?> list, Object obj, String token) {
         this.status = status;
