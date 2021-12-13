@@ -67,12 +67,12 @@ public class UserService {
         return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
-    public ResponseHolder pay(Long userId, int money){
-        User user = userRepository.findByUserId(userId);
+    public ResponseHolder pay(String username, int money){
+        User user = userRepository.findByName(username);
         if(user == null) {
             //用户不存在
             logger.debug("user not found error");
-            throw new UserNotFoundException(userId);
+            throw new UserNotFoundException(username);
         }
 
         int newBalance = user.getBalance() + money;
@@ -87,23 +87,27 @@ public class UserService {
         return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
-    public ResponseHolder info(Long userId){
+    public ResponseHolder info(String username, Long userId){
         User user = userRepository.findByUserId(userId);
         if(user == null) {
             //用户不存在
             logger.debug("user not found error");
-            throw new UserNotFoundException(userId);
+            throw new UserNotFoundException(username);
+        }
+        if(!username.equals(user.getUsername())){
+            //不能暴露别人的余额
+            user.setBalance(-1);
         }
 
         return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, UserDto.wrap(user), null);
     }
 
-    public ResponseHolder changeIntro(Long userId, String selfIntro){
-        User user = userRepository.findByUserId(userId);
+    public ResponseHolder changeIntro(String username, String selfIntro){
+        User user = userRepository.findByName(username);
         if(user == null) {
             //用户不存在
             logger.debug("user not found error");
-            throw new UserNotFoundException(userId);
+            throw new UserNotFoundException(username);
         }
         user.setSelf_introduction(selfIntro);
         userRepository.save(user);
