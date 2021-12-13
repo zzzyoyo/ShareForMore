@@ -29,6 +29,16 @@ public class Authority implements GrantedAuthority {
         this.authority = authority;
     }
 
+    //重写equals方法, 最佳实践就是如下这种判断顺序:
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Authority))
+            return false;
+        if (obj == this)
+            return true;
+        return this.getId().equals(((Authority) obj).getId());
+    }
+
     @Override
     public String getAuthority() {
         return this.authority;

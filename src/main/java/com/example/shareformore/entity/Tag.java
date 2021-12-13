@@ -31,6 +31,16 @@ public class Tag {
         this.workSet = new HashSet<>();
     }
 
+    //重写equals方法, 最佳实践就是如下这种判断顺序:
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Tag))
+            return false;
+        if (obj == this)
+            return true;
+        return this.getTagId().equals(((Tag) obj).getTagId());
+    }
+
     public Long getTagId() {
         return tagId;
     }

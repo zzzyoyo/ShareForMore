@@ -55,6 +55,16 @@ public class SpecialColumn {
         this.workSet = new HashSet<>();
     }
 
+    //重写equals方法, 最佳实践就是如下这种判断顺序:
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof SpecialColumn))
+            return false;
+        if (obj == this)
+            return true;
+        return this.getColumnId().equals(((SpecialColumn) obj).getColumnId());
+    }
+
     public Long getColumnId() {
         return columnId;
     }

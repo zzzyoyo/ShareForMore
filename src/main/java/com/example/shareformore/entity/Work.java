@@ -68,6 +68,16 @@ public class Work {
         this.purchase = new HashSet<>();
     }
 
+    //重写equals方法, 最佳实践就是如下这种判断顺序:
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Work))
+            return false;
+        if (obj == this)
+            return true;
+        return this.getWorkId().equals(((Work) obj).getWorkId());
+    }
+
     public String getContent() {
         return content;
     }
