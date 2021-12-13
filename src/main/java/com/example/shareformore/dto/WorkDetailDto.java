@@ -19,7 +19,7 @@ public class WorkDetailDto implements Serializable {
     public final String description;
     public final int price;
     public final String content;
-    public final byte[] image;
+    public final String image;
 
     private WorkDetailDto(Work work) {
         this.work_id = work.getWorkId();

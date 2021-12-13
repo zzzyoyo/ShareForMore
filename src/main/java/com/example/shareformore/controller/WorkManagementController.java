@@ -38,7 +38,7 @@ public class WorkManagementController {
                                         @NotBlank(message = "缺少标题") @RequestParam String title,
                                         @NotBlank(message = "缺少简介") @RequestParam String description,
                                         @RequestParam(required = false) String content,
-                                        @Min(value = 1, message = "价格必须为正整数") @RequestParam int price) throws IOException {
+                                        @Min(value = 0, message = "价格必须为自然数") @RequestParam int price) throws IOException {
         logger.debug("get an upload post from " + JwtUtils.getUsername(token));
         return workManagementService.uploadWork(JwtUtils.getUsername(token), columnId, tagList, title, description,content, price, image).getResponseEntity();
     }

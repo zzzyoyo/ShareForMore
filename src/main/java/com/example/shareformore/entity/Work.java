@@ -22,8 +22,7 @@ public class Work {
     String description;
     String content;
 
-    @Lob
-    byte[] image;
+    String image;
 
     int price;
     @JsonIgnore
@@ -54,7 +53,7 @@ public class Work {
     public Work() {
     }
 
-    public Work(User author, SpecialColumn specialColumn, String title, String description, String content, byte[] image, int price, Set<Tag> tagSet) {
+    public Work(User author, SpecialColumn specialColumn, String title, String description, String content, String image, int price, Set<Tag> tagSet) {
         this.author = author;
         this.specialColumn = specialColumn;
         this.title = title;
@@ -133,11 +132,11 @@ public class Work {
         this.description = description;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] content) {
+    public void setImage(String content) {
         this.image = content;
     }
 
