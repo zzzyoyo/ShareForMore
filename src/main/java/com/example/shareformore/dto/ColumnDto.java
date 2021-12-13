@@ -12,6 +12,7 @@ public class ColumnDto implements Serializable {
     public final long column_id;
     public final long author_id;
     public final String column_name;
+    public final String author_name;
     public final long create_time;
     public final long update_time;
     public final String description;
@@ -20,6 +21,7 @@ public class ColumnDto implements Serializable {
         this.column_id = column.getColumnId();
         this.author_id = column.getAuthor().getUserId();
         this.column_name = column.getColumnName();
+        this.author_name = column.getAuthor().getUsername();
         this.create_time = column.getCreateTime().getTime() / 1000L;
         this.update_time = column.getUpdateTime().getTime() / 1000L;
         this.description = column.getDescription();

@@ -255,14 +255,40 @@ public class WorkManagementService {
             throw new WorkNotFoundException(workId);
         }
 
-        String authorName = work.getAuthor().getName();
         List<TagDto> tagList = (new ArrayList<>(work.getTagSet())).stream().map(TagDto::wrap).collect(Collectors.toList());
 
         if (!work.getPurchase().contains(user) && !work.getAuthor().equals(user)) {
             logger.debug("work not available error");
-            throw new WorkNotAvailableException(userId, workId, authorName, tagList, WorkDto.wrap(work));
+            throw new WorkNotAvailableException(userId, workId, tagList, WorkDto.wrap(work));
         }
 
-        return new ResponseHolder(HttpStatus.OK.value(), authorName, null, tagList, WorkDetailDto.wrap(work), null);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, tagList, WorkDetailDto.wrap(work), null);
+    }
+
+    public ResponseHolder deleteWork(String username, Long workId){
+        Work work = workRepository.findByWorkId(workId);
+        if(work == null){
+            logger.debug("work not found error");
+            throw new WorkNotFoundException(workId);
+        }
+        if(!username.equals(work.getAuthor().getUsername())){
+            // 删除不属于自己的作品
+            logger.debug("delete other's work error");
+            throw new WorkNotAvailableException(username, workId);
+        }
+        if(!work.getPurchase().isEmpty()){
+            // 该作品已经被别人购买了不能删除
+            logger.debug("delete purchased work error");
+            throw new DeletePurchasedWorkException(workId);
+        }
+        //todo: 删除文件系统中路径对应的图片
+
+        // 解除关系
+        work.getLiked().clear();
+        work.getTagSet().clear();
+        workRepository.save(work);
+        // 从数据库中删除work
+        workRepository.delete(work);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 }

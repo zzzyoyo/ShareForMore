@@ -10,20 +10,21 @@ import java.util.List;
 public class WorkNotAvailableException extends RuntimeException {
     private static final long serialVersionUID = 5489192019064307564L;
 
-    private final String authorName;
     private final List<TagDto> tagList;
     private final WorkDto work;
 
-    public WorkNotAvailableException(long userId, long workId, String authorName, List<TagDto> tagList, WorkDto work) {
-        super("Work " + workId + " is not available to user " + userId);
-        this.authorName = authorName;
+    public WorkNotAvailableException(long userId, long workId, List<TagDto> tagList, WorkDto work) {
+        super("Work with id: " + workId + " is not available to user with id: " + userId);
         this.tagList = tagList;
         this.work = work;
     }
 
-    public String getAuthorName() {
-        return authorName;
+    public WorkNotAvailableException(String username, long workId) {
+        super("Work with id: " + workId + " is not available to user with name: " + username);
+        this.tagList = null;
+        this.work = null;
     }
+
 
     public List<TagDto> getTagList() {
         return tagList;
