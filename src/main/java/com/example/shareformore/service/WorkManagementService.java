@@ -1,5 +1,6 @@
 package com.example.shareformore.service;
 
+import com.example.shareformore.config.FilePathConfig;
 import com.example.shareformore.dto.TagDto;
 import com.example.shareformore.dto.WorkDetailDto;
 import com.example.shareformore.dto.WorkDto;
@@ -23,6 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
@@ -34,6 +37,7 @@ public class WorkManagementService {
     private final WorkRepository workRepository;
     private final ColumnRepository columnRepository;
     private final TagRepository tagRepository;
+    private final FilePathConfig filePathConfig;
 
     final private Set<String> allowSuffix = new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "gif"));
     private static String ACCESS_URL;
@@ -46,11 +50,18 @@ public class WorkManagementService {
      */
 
     @Autowired
-    public WorkManagementService(UserRepository userRepository, WorkRepository workRepository, ColumnRepository columnRepository, TagRepository tagRepository) {
+    public WorkManagementService(UserRepository userRepository, WorkRepository workRepository, ColumnRepository columnRepository, TagRepository tagRepository, FilePathConfig filePathConfig) {
         this.userRepository = userRepository;
         this.workRepository = workRepository;
         this.columnRepository = columnRepository;
         this.tagRepository = tagRepository;
+        this.filePathConfig = filePathConfig;
+    }
+
+    @PostConstruct
+    public void init() {
+        ACCESS_URL = filePathConfig.getBaseUrl();
+        UPLOAD_PATH = filePathConfig.getUploadFolder();
     }
 
     /**
@@ -84,10 +95,26 @@ public class WorkManagementService {
             tagSet = getTagSet(tagList);
         }
 
-        Work work = new Work(user, column, title, description, content, image.getBytes(), price, tagSet);
+        String fileName = image.getOriginalFilename();
+        int index = fileName.lastIndexOf('.');
+        String suffix = fileName.substring(index + 1);
+        Long pid = generatePID();
+        while (workRepository.findByWorkId(pid) != null) {
+            pid = generatePID();
+        }
+        fileName = pid + "." + suffix;
+        String path = UPLOAD_PATH + fileName;
+        File dest = new File(path);
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        image.transferTo(dest); // 保存文件
+        String url = ACCESS_URL + fileName;
+
+        Work work = new Work(user, column, title, description, content, url, price, tagSet);
         workRepository.save(work);
 
-        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", url, null, null, null);
     }
 
     public ResponseHolder updateWork(String author, Long workId, Long columnId, List<Long> tagList, String title,
@@ -129,17 +156,29 @@ public class WorkManagementService {
         if (tagList != null) {
             tagSet = getTagSet(tagList);
         }
+
+        String fileName = image.getOriginalFilename();
+        int index = fileName.lastIndexOf('.');
+        String suffix = fileName.substring(index + 1);
+        fileName = workId + "." + suffix;
+        String path = UPLOAD_PATH + fileName;
+        File dest = new File(path);
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        image.transferTo(dest); // 保存文件
+        String url = ACCESS_URL + fileName;
+
         work.setColumn(column);
         work.setTitle(title);
         work.setDescription(description);
         work.setContent(content);
-        work.setImage(image.getBytes());
+        work.setImage(url);
         work.setTagSet(tagSet);
         work.setPrice(price);
         work.setUpdateTime(new Timestamp(new Date().getTime()));
         workRepository.save(work);
-
-        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", url, null, null, null);
     }
 
     public ResponseHolder payWork(String username, Long work_id) {
@@ -264,5 +303,17 @@ public class WorkManagementService {
         }
 
         return new ResponseHolder(HttpStatus.OK.value(), authorName, null, tagList, WorkDetailDto.wrap(work), null);
+    }
+
+    private static Long generatePID() {
+        String sources = "0123456789"; // 加上一些字母，就可以生成pc站的验证码了
+        Random rand = new Random();
+        StringBuffer flag = new StringBuffer();
+        flag.append(sources.charAt(rand.nextInt(8) + 1) + ""); // 首位必须为正
+        for (int j = 0; j < 6; j++)
+        {
+            flag.append(sources.charAt(rand.nextInt(9)) + "");
+        }
+        return Long.valueOf(flag.toString());
     }
 }
