@@ -29,7 +29,6 @@ public class TagService {
     Logger logger = LoggerFactory.getLogger(TagService.class);
 
     public ResponseHolder listAllTags(){
-        Map<String, List> map = new HashMap<>();
         List<Tag> allTags = new LinkedList<>();
         tagRepository.findAll().forEach(allTags::add);
         List<TagDto> tagList = allTags.stream().map(TagDto::wrap).collect(Collectors.toList());
@@ -38,7 +37,6 @@ public class TagService {
     }
 
     public ResponseHolder createTag(String tagName){
-        Map<String, Object> map = new HashMap<>();
         Tag tag = tagRepository.findByTagName(tagName);
         if(tag != null){
             logger.debug("tag name used error");
