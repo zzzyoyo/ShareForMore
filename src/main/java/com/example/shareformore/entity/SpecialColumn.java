@@ -28,7 +28,7 @@ public class SpecialColumn {
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
     User author;
     @JsonIgnore
-    @OneToMany(mappedBy = "specialColumn")
+    @OneToMany(mappedBy = "specialColumn",fetch = FetchType.EAGER)
     Set<Work> workSet;
 
     public SpecialColumn() {
