@@ -64,19 +64,38 @@ public class WorkManagementService {
         UPLOAD_PATH = filePathConfig.getUploadFolder();
     }
 
+
+    public ResponseHolder uploadImage(MultipartFile image) throws IOException {
+        String fileName = image.getOriginalFilename();
+        int index = fileName.lastIndexOf('.');
+        String suffix = fileName.substring(index + 1);
+        Long pid = generatePID();
+        while (workRepository.findByWorkId(pid) != null) {
+            pid = generatePID();
+        }
+        fileName = pid + "." + suffix;
+        String path = UPLOAD_PATH + fileName;
+        File dest = new File(path);
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        image.transferTo(dest); // 保存文件
+        String url = ACCESS_URL + fileName;
+        return new ResponseHolder(HttpStatus.OK.value(), "success", url, null, null, null);
+    }
     /**
      * 上传作品
      */
 
     public ResponseHolder uploadWork(String author, Long columnId, List<Long> tagList, String title, String description,
-                                     String content, int price, MultipartFile image) throws IOException {
+                                     String content, int price, String image) throws IOException {
         User user = userRepository.findByName(author);
         if (user == null) {
             logger.debug("user not found error");
             throw new UserNotFoundException(author);
         }
 
-        if ((content == null || content.isBlank()) && image == null) {
+        if ((content == null || content.isBlank()) && (image == null || image.isEmpty())) {
             logger.debug("empty work error");
             throw new EmptyWorkException();
         }
@@ -95,37 +114,22 @@ public class WorkManagementService {
             tagSet = getTagSet(tagList);
         }
 
-        String fileName = image.getOriginalFilename();
-        int index = fileName.lastIndexOf('.');
-        String suffix = fileName.substring(index + 1);
-        Long pid = generatePID();
-        while (workRepository.findByWorkId(pid) != null) {
-            pid = generatePID();
-        }
-        fileName = pid + "." + suffix;
-        String path = UPLOAD_PATH + fileName;
-        File dest = new File(path);
-        if (!dest.getParentFile().exists()) {
-            dest.getParentFile().mkdirs();
-        }
-        image.transferTo(dest); // 保存文件
-        String url = ACCESS_URL + fileName;
 
-        Work work = new Work(user, column, title, description, content, url, price, tagSet);
+        Work work = new Work(user, column, title, description, content, image, price, tagSet);
         workRepository.save(work);
 
-        return new ResponseHolder(HttpStatus.OK.value(), "success", url, null, null, null);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
     public ResponseHolder updateWork(String author, Long workId, Long columnId, List<Long> tagList, String title,
-                                     String description, String content, int price, MultipartFile image) throws IOException {
+                                     String description, String content, int price, String image) {
         User user = userRepository.findByName(author);
         if (user == null) {
             logger.debug("user not found error");
             throw new UserNotFoundException(author);
         }
 
-        if ((content == null || content.isBlank()) && image == null) {
+        if ((content == null || content.isBlank()) && (image == null || image.isEmpty())) {
             logger.debug("empty work error");
             throw new EmptyWorkException();
         }
@@ -157,28 +161,16 @@ public class WorkManagementService {
             tagSet = getTagSet(tagList);
         }
 
-        String fileName = image.getOriginalFilename();
-        int index = fileName.lastIndexOf('.');
-        String suffix = fileName.substring(index + 1);
-        fileName = workId + "." + suffix;
-        String path = UPLOAD_PATH + fileName;
-        File dest = new File(path);
-        if (!dest.getParentFile().exists()) {
-            dest.getParentFile().mkdirs();
-        }
-        image.transferTo(dest); // 保存文件
-        String url = ACCESS_URL + fileName;
-
         work.setColumn(column);
         work.setTitle(title);
         work.setDescription(description);
         work.setContent(content);
-        work.setImage(url);
+        work.setImage(image);
         work.setTagSet(tagSet);
         work.setPrice(price);
         work.setUpdateTime(new Timestamp(new Date().getTime()));
         workRepository.save(work);
-        return new ResponseHolder(HttpStatus.OK.value(), "success", url, null, null, null);
+        return new ResponseHolder(HttpStatus.OK.value(), "success", null, null, null, null);
     }
 
     public ResponseHolder payWork(String username, Long work_id) {
