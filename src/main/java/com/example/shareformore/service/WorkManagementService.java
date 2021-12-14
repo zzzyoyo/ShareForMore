@@ -320,8 +320,13 @@ public class WorkManagementService {
             logger.debug("delete purchased work error");
             throw new DeletePurchasedWorkException(workId);
         }
-        //todo: 删除文件系统中路径对应的图片
-
+        // 从文件系统中删除
+        String fileName = work.getImage().substring(ACCESS_URL.length());
+        String path = UPLOAD_PATH + fileName;
+        File file = new File(path);
+        if(file.exists()){
+            file.delete();
+        }
         // 解除关系
         work.getLiked().clear();
         work.getTagSet().clear();
